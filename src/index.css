@@ -1335,3 +1335,14 @@ body {
 .modal-markdown strong {
   color: white;
 }
+
+.modal-markdown a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.modal-markdown a:hover {
+  color: var(--accent-secondary);
+  text-decoration-thickness: 2px;
+}

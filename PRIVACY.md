@@ -20,4 +20,4 @@ We use **Google Analytics 4** to understand how visitors interact with the site.
 *   **Consent**: Analytics tracking is disabled by default until you click "Accept" on our cookie banner.
 
 ## 5. Contact
-If you have questions about this privacy policy, please open an issue in our [GitHub repository](https://github.com/daysalive/daysa.live).
+If you have questions about this privacy policy, please open an issue in our [GitHub repository](https://github.com/sohjsolwin/daysalive).
