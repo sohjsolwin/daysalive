@@ -19,8 +19,8 @@ This project is built with a modern, performance-focused stack:
 -   **[TypeScript](https://www.typescriptlang.org/)**: For static type safety.
 -   **[Vite](https://vitejs.dev/)**: For fast development and bundling.
 -   **[Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)**: For celebratory effects.
--   **GitHub Actions**: For automated deployment to GitHub Pages.
--   **[Antigravity](https://github.com/)**: Powered by Google DeepMind's advanced AI coding agent.
+-   **[GitHub Actions](https://github.com/features/actions)**: For automated deployment to GitHub Pages.
+-   **[Antigravity](https://antigravity.google)**: Powered by Google DeepMind's advanced AI coding agent.
 
 
 ## Getting Started
