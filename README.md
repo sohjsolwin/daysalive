@@ -50,6 +50,20 @@ This project is built with a modern, performance-focused stack:
 
 4.  Open your browser and navigate to `http://localhost:5173`.
 
+## Configuration
+
+### Analytics
+
+The application uses Google Analytics 4. To enable it for your own deployment:
+
+1.  Create a property in Google Analytics 4.
+2.  Get your **Measurement ID** (starts with `G-`).
+3.  Set the environment variable `VITE_GA_MEASUREMENT_ID` in your build environment or `.env` file.
+
+    ```env
+    VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+    ```
+
 ## Deployment
 
 The project is configured for automated deployment to GitHub Pages using GitHub Actions.
