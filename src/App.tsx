@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import './App.css';
+
 import { DateInput } from './components/DateInput';
 import { OptionsPanel, type Options } from './components/OptionsPanel';
 import { MilestoneList } from './components/MilestoneList';
