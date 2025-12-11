@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import { getDateFromDays, formatDate, calculateDaysFrom } from '../utils/dateUtils';
 import { isPrime, isSequence, isMilestone } from '../utils/numberUtils';
 import { getSeason, getEventsForDate } from '../utils/eventUtils';
+import { encodeMilestoneData } from '../utils/encodingUtils';
 import type { Options } from './OptionsPanel';
 import { CountdownTimer } from './CountdownTimer';
 import { MilestoneCard } from './MilestoneCard';
@@ -45,6 +46,19 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
     const [expandedMobileItem, setExpandedMobileItem] = useState<MilestoneItem | null>(null);
     const [isOverlayFlipped, setIsOverlayFlipped] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
+    const lastAutoExpandedRef = useRef<number | null>(null);
+
+    // Sync URL with Expanded Card
+    useEffect(() => {
+        const path = window.location.pathname;
+        if (expandedMobileItem) {
+            const nonce = encodeMilestoneData(expandedMobileItem.dayCount, startDate);
+            const newUrl = `${path}?nonce=${nonce}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+        } else {
+            window.history.replaceState({ path }, '', path);
+        }
+    }, [expandedMobileItem, startDate]);
 
     const handleCloseMobile = () => {
         setIsClosing(true);
@@ -150,9 +164,12 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
         if (highlightDay) {
             // Mobile: Auto-expand the highlighted card
             if (isMobileView) {
-                const item = milestones.find(m => m.dayCount === highlightDay);
-                if (item) {
-                    setExpandedMobileItem(item);
+                if (lastAutoExpandedRef.current !== highlightDay) {
+                    const item = milestones.find(m => m.dayCount === highlightDay);
+                    if (item) {
+                        setExpandedMobileItem(item);
+                        lastAutoExpandedRef.current = highlightDay;
+                    }
                 }
             }
 
