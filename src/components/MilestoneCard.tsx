@@ -102,8 +102,8 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
     };
 
     const getCalendarLink = () => {
-        const nonce = encodeMilestoneData(dayCount, startDate);
-        const url = `https://daysa.live?nonce=${nonce}`;
+        const shareId = encodeMilestoneData(dayCount, startDate);
+        const url = `https://daysa.live/${shareId}`;
 
         const title = `DaysA.live Milestone: ${dayCount.toLocaleString()} Days`;
         const description = `Celebrating ${dayCount.toLocaleString()} days alive! Check more at ${url}`;

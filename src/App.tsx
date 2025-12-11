@@ -47,21 +47,39 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Check for nonce in URL
+    // Check for shareId in URL (Path Segment or Query Param)
+    const pathId = window.location.pathname.slice(1); // Remove leading slash
     const params = new URLSearchParams(window.location.search);
-    const nonce = params.get('nonce');
-    if (nonce) {
-      const decoded = decodeMilestoneData(nonce);
+    const queryId = params.get('nonce');
+
+    // Prioritize path segment, fallback to query param
+    const shareId = pathId.length > 3 ? pathId : queryId;
+
+    if (shareId) {
+      const decoded = decodeMilestoneData(shareId);
       if (decoded) {
         setStartDate(decoded.dateString);
         setHighlightDay(decoded.dayCount);
+
+        // If we found a valid legacy query param, upgrade URL to path style
+        if (queryId && !pathId) {
+          window.history.replaceState({}, '', `/${queryId}`);
+        }
       } else {
-        // Invalid nonce -> Error
-        setShowError(true);
-        setTimeout(() => {
-          setShowError(false);
-          window.history.replaceState({}, '', window.location.pathname);
-        }, 4000);
+        // Invalid shareId -> Error
+        if (shareId === pathId && pathId.length > 0) {
+          setShowError(true);
+          setTimeout(() => {
+            setShowError(false);
+            window.history.replaceState({}, '', '/');
+          }, 4000);
+        } else if (queryId) {
+          setShowError(true);
+          setTimeout(() => {
+            setShowError(false);
+            window.history.replaceState({}, '', window.location.pathname);
+          }, 4000);
+        }
       }
     }
 

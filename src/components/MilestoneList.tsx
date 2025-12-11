@@ -60,11 +60,17 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
         }
 
         if (activeDayCount) {
-            const nonce = encodeMilestoneData(activeDayCount, startDate);
-            const newUrl = `${path}?nonce=${nonce}`;
-            window.history.replaceState({ path: newUrl }, '', newUrl);
+            const shareId = encodeMilestoneData(activeDayCount, startDate);
+            const newUrl = `/${shareId}`;
+            // Ensure we don't overwrite if nothing changed, prevents loop if already at URL
+            if (window.location.pathname !== newUrl) {
+                window.history.replaceState({ path: newUrl }, '', newUrl);
+            }
         } else {
-            window.history.replaceState({ path }, '', path);
+            // If active day cleared, go back to root (but only if we aren't already there)
+            if (window.location.pathname !== '/' && window.location.pathname.length > 1) {
+                window.history.replaceState({ path: '/' }, '', '/');
+            }
         }
     }, [expandedMobileItem, flippedDayCount, startDate, isMobileView]);
 
