@@ -48,17 +48,25 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
     const [isClosing, setIsClosing] = useState(false);
     const lastAutoExpandedRef = useRef<number | null>(null);
 
-    // Sync URL with Expanded Card
+    // Sync URL with Expanded Card (Mobile) or Flipped Card (Desktop)
     useEffect(() => {
         const path = window.location.pathname;
-        if (expandedMobileItem) {
-            const nonce = encodeMilestoneData(expandedMobileItem.dayCount, startDate);
+        let activeDayCount: number | null = null;
+
+        if (isMobileView) {
+            if (expandedMobileItem) activeDayCount = expandedMobileItem.dayCount;
+        } else {
+            activeDayCount = flippedDayCount;
+        }
+
+        if (activeDayCount) {
+            const nonce = encodeMilestoneData(activeDayCount, startDate);
             const newUrl = `${path}?nonce=${nonce}`;
             window.history.replaceState({ path: newUrl }, '', newUrl);
         } else {
             window.history.replaceState({ path }, '', path);
         }
-    }, [expandedMobileItem, startDate]);
+    }, [expandedMobileItem, flippedDayCount, startDate, isMobileView]);
 
     const handleCloseMobile = () => {
         setIsClosing(true);
@@ -170,6 +178,11 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
                         setExpandedMobileItem(item);
                         lastAutoExpandedRef.current = highlightDay;
                     }
+                }
+            } else {
+                // Desktop: Auto-Flip the highlighted card
+                if (flippedDayCount !== highlightDay) {
+                    setFlippedDayCount(highlightDay);
                 }
             }
 
