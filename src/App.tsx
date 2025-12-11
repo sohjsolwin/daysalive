@@ -7,6 +7,9 @@ import { MilestoneList } from './components/MilestoneList';
 import { CookieBanner } from './components/CookieBanner';
 
 import { decodeMilestoneData } from './utils/encodingUtils';
+import { calculateDaysFrom, getDateFromDays, formatDate } from './utils/dateUtils';
+import { useIsMobile } from './hooks/useIsMobile';
+import './mobile.css'; // Mobile specific styles
 
 function App() {
   const [startDate, setStartDate] = useState<string>(() => {
@@ -101,21 +104,166 @@ function App() {
     );
   }
 
+  // ... existing hooks ... 
+  const isMobile = useIsMobile();
+  const [mobileHeaderVisible, setMobileHeaderVisible] = useState(false);
+
+  const handleMobileScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    // Show sticky header when scrolled past Hero (approx 100vh)
+    const scrollTop = e.currentTarget.scrollTop;
+    const threshold = window.innerHeight * 0.8;
+    setMobileHeaderVisible(scrollTop > threshold);
+  };
+
+  if (showError) {
+    return (
+      <div className="error-overlay">
+        <div className="error-content">
+          <h2>You've been lost in time...</h2>
+          <p>That timeline link seems to be broken. Don't worry, we're bringing you back to the present...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="mobile-snap-container" onScroll={handleMobileScroll}>
+        {/* Sticky Header (Hidden initially) */}
+        <header className={`mobile-sticky-header ${mobileHeaderVisible ? 'visible' : ''}`}>
+          <div className="flex items-center gap-2">
+            <img
+              src="/logo_symbol_dark.png"
+              alt="Logo"
+              className="w-8 h-8 object-contain"
+              style={{ width: '32px', height: '32px', minWidth: '32px' }}
+            />
+            <span className="font-bold text-lg text-white">DaysA.live</span>
+          </div>
+          <div className="mobile-date-label">
+            {startDate}
+          </div>
+          {/* Hamburger */}
+          <button className="p-2 mobile-nav-btn" onClick={() => setIsSidebarOpen(true)}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+          </button>
+        </header>
+
+        {/* Sticky Footer (Visible on scroll) */}
+        <footer className={`mobile-sticky-footer ${mobileHeaderVisible ? 'visible' : ''}`}>
+          <button onClick={() => toggleModal('why')} className="mobile-footer-btn">Why?</button>
+          <button onClick={() => toggleModal('privacy')} className="mobile-footer-btn">Privacy</button>
+          <span className="opacity-50">© {new Date().getFullYear()}</span>
+        </footer>
+
+        {/* Sidebar Overlay for Mobile */}
+        <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+          <button className="mobile-close-sidebar" onClick={() => setIsSidebarOpen(false)}>×</button>
+          <div className="glass-panel mt-12">
+            <DateInput value={startDate} onChange={setStartDate} onClear={handleClearDate} />
+          </div>
+          <OptionsPanel options={options} onChange={setOptions} />
+        </div>
+
+        {/* Section 1: Hero */}
+        <section className="mobile-hero-section">
+          <header className="flex flex-col items-center gap-4 mb-6 relative z-10">
+            <img
+              src="/logo_symbol_dark.png"
+              alt="Logo"
+              className="w-48 h-48 object-contain"
+              style={{ width: '180px', height: '180px' }}
+            />
+            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-indigo-400 pb-1">
+              DaysA.live
+            </h1>
+            <p className="text-center text-slate-400 max-w-xs text-sm">
+              Discover the hidden milestones in your timeline.
+            </p>
+          </header>
+
+          <div className="w-full max-w-xs glass-panel relative z-10 mb-6">
+            <DateInput value={startDate} onChange={setStartDate} onClear={handleClearDate} />
+          </div>
+
+          {/* Next Milestone Display (Hero) */}
+          <div className="flex flex-col items-center justify-center relative z-10 animate-fade-in mb-24">
+            {(() => {
+              const start = new Date(startDate);
+              if (!isNaN(start.getTime())) {
+                const currentDays = calculateDaysFrom(start, new Date());
+                let interval = 500;
+                if (options.milestoneMode === '1000') interval = 1000;
+                if (options.milestoneMode === 'custom') interval = options.customMilestone;
+
+                const nextMilestoneCount = Math.ceil((currentDays + 1) / interval) * interval;
+                const nextMilestoneDate = getDateFromDays(start, nextMilestoneCount);
+                const daysUntil = nextMilestoneCount - currentDays;
+
+                return (
+                  <>
+                    <div className="text-slate-500 text-xs uppercase tracking-widest mb-1">Next Milestone</div>
+                    <div className="text-3xl font-extrabold text-white mb-0">{nextMilestoneCount.toLocaleString()}</div>
+                    <div className="text-sky-400 font-semibold text-lg">{formatDate(nextMilestoneDate)}</div>
+                    <div className="text-xs text-slate-500 mt-1">
+                      {daysUntil > 0 ? `${daysUntil.toLocaleString()} days to go` : 'Today!'}
+                    </div>
+                  </>
+                );
+              }
+              return null;
+            })()}
+          </div>
+
+          {/* Footer at Bottom - Absolute Positioned via CSS now */}
+          <div className="mobile-hero-footer">
+            <button onClick={() => toggleModal('why')} className="mobile-footer-btn">Why?</button>
+            <button onClick={() => toggleModal('privacy')} className="mobile-footer-btn">Privacy</button>
+            <span>© {new Date().getFullYear()}</span>
+          </div>
+
+          {/* Swipe Indicator */}
+          <div className="swipe-indicator">
+            <span className="text-sm font-medium">Swipe Up for Results</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-bounce">
+              <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+            </svg>
+          </div>
+        </section>
+
+        {/* Section 2: Results */}
+        <section className="mobile-results-section">
+          <MilestoneList
+            startDate={startDate}
+            options={options}
+            onTogglePastDays={() => setOptions(prev => ({ ...prev, showPastDays: !prev.showPastDays }))}
+            highlightDay={highlightDay}
+            isMobileView={true} // New Prop to trigger Grid Mode
+          />
+        </section>
+
+        <CookieBanner onOpenPrivacy={() => setActiveModal('privacy')} />
+
+        {/* Mobile Modal */}
+        {activeModal && (
+          <div className="mobile-modal-overlay">
+            <div className="mobile-modal-content custom-scrollbar">
+              <button className="mobile-modal-close" onClick={() => setActiveModal(null)}>&times;</button>
+              <div className="modal-markdown">
+                <ReactMarkdown>{activeModal === 'why' ? whyContent : privacyContent}</ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop Layout (Existing)
   return (
     <div className="container">
       <header className="header relative">
-        <button
-          className="mobile-nav-toggle"
-          onClick={() => setIsSidebarOpen(true)}
-          aria-label="Open Settings"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-        </button>
-
         <div className="flex items-center justify-center gap-4 mb-4">
           <img
             src="/logo_symbol_dark.png"
@@ -133,13 +281,7 @@ function App() {
 
       {activeModal === null ? (
         <main className="main-content">
-          <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-            <button
-              className="mobile-close-sidebar"
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              ×
-            </button>
+          <div className="sidebar">
             <div className="glass-panel">
               <DateInput value={startDate} onChange={setStartDate} onClear={handleClearDate} />
             </div>
