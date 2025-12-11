@@ -50,7 +50,6 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
 
     // Sync URL with Expanded Card (Mobile) or Flipped Card (Desktop)
     useEffect(() => {
-        const path = window.location.pathname;
         let activeDayCount: number | null = null;
 
         if (isMobileView) {
