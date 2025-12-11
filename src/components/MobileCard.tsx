@@ -12,7 +12,6 @@ export const MobileCard: React.FC<MobileCardProps> = ({
     dayCount,
     season,
     date,
-    tags,
     onClick
 }) => {
 
