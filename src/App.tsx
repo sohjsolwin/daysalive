@@ -12,11 +12,24 @@ import { useIsMobile } from './hooks/useIsMobile';
 import './mobile.css'; // Mobile specific styles
 
 function App() {
+  // Lazy Initialize State from URL
+  const [initialUrlState] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const shareId = params.get('m') || params.get('nonce');
+    if (shareId) {
+      try {
+        return decodeMilestoneData(shareId);
+      } catch (e) { return null; }
+    }
+    return null;
+  });
+
   const [startDate, setStartDate] = useState<string>(() => {
+    if (initialUrlState) return initialUrlState.dateString;
     return localStorage.getItem('daysa.live.startDate') || '1999-09-09';
   });
 
-  const [highlightDay, setHighlightDay] = useState<number | undefined>(undefined);
+  const [highlightDay, setHighlightDay] = useState<number | undefined>(initialUrlState?.dayCount);
   const [showError, setShowError] = useState(false);
 
   // Markdown content state
@@ -47,29 +60,22 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Check for shareId in URL (Query Param 'm' or legacy 'nonce')
+    // Cleanup / Error Handling Effect
     const params = new URLSearchParams(window.location.search);
     const shareId = params.get('m') || params.get('nonce');
 
     if (shareId) {
-      const decoded = decodeMilestoneData(shareId);
-      if (decoded) {
-        setStartDate(decoded.dateString);
-        setHighlightDay(decoded.dayCount);
-
-        // If using legacy 'nonce', upgrade to 'm'
-        if (params.get('nonce')) {
-          const newUrl = `${window.location.pathname}?m=${shareId}`;
-          window.history.replaceState({}, '', newUrl);
-        }
-      } else {
-        // Invalid shareId -> Error
+      if (!initialUrlState) {
+        // Initial parsing failed -> Show Error
         setShowError(true);
         setTimeout(() => {
           setShowError(false);
-          // Clear query params
           window.history.replaceState({}, '', window.location.pathname);
         }, 4000);
+      } else if (params.get('nonce')) {
+        // Upgrade legacy link
+        const newUrl = `${window.location.pathname}?m=${shareId}`;
+        window.history.replaceState({}, '', newUrl);
       }
     }
 

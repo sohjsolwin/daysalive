@@ -66,8 +66,18 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
                 window.history.replaceState({ path: newUrl }, '', newUrl);
             }
         } else {
-            // If active day cleared, remove query params
-            if (window.location.search) {
+            // If active day cleared, remove query params...
+            // UNLESS the current URL param matches the `highlightDay` we expect (Initial Load Safeguard)
+            let shouldClear = true;
+            if (highlightDay) {
+                const expectedId = encodeMilestoneData(highlightDay, startDate);
+                // Check if URL has expected ID (either m= or nonce=)
+                if (window.location.search.includes(expectedId)) {
+                    shouldClear = false;
+                }
+            }
+
+            if (shouldClear && window.location.search) {
                 window.history.replaceState({ path: window.location.pathname }, '', window.location.pathname);
             }
         }
