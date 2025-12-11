@@ -15,6 +15,21 @@ interface MilestoneCardProps {
     startDate: string; // The user's source date
 }
 
+const renderSeasonIcon = (season: string) => {
+    const props = { width: 14, height: 14, stroke: "currentColor", strokeWidth: 2, fill: "none", viewBox: "0 0 24 24" };
+    switch (season) {
+        case 'Spring':
+            return <svg {...props}><path d="M12 2.5a4.5 4.5 0 0 1 4.5 4.5c0 2.485-2.015 4.5-4.5 4.5S7.5 9.485 7.5 7 9.515 2.5 12 2.5z" /><path d="M12 21.5v-10" /><path d="M12 16.5c-2.5 0-4.5-2-4.5-4.5" /></svg>;
+        case 'Summer':
+            return <svg {...props}><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>;
+        case 'Autumn':
+            return <svg {...props}><path d="M12 21c-5 0-9-5-9-11S7 2 12 2s9 6 9 11-4 11-9 11z" /><path d="M12 21v-8" /></svg>;
+        case 'Winter':
+            return <svg {...props}><path d="M2 12h20M12 2v20M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93" /></svg>;
+        default: return null;
+    }
+};
+
 export const MilestoneCard: React.FC<MilestoneCardProps> = ({
     dayCount,
     season,
@@ -87,13 +102,14 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
     };
 
     const getCalendarLink = () => {
+        const nonce = encodeMilestoneData(dayCount, startDate);
+        const url = `https://daysa.live?nonce=${nonce}`;
+
         const title = `DaysA.live Milestone: ${dayCount.toLocaleString()} Days`;
-        const description = `Celebrating ${dayCount.toLocaleString()} days alive! Check more at https://daysa.live`;
+        const description = `Celebrating ${dayCount.toLocaleString()} days alive! Check more at ${url}`;
         const start = fullDate.toISOString().replace(/-|:|\.\d\d\d/g, "").substring(0, 15) + "Z";
         const end = new Date(fullDate.getTime() + 86400000).toISOString().replace(/-|:|\.\d\d\d/g, "").substring(0, 15) + "Z";
 
-        // Track Calendar Click (lazy way: clicking the link triggers this getter? No. Link click needs onCLick)
-        // We will add onClick to the anchor tag below.
         return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${start}/${end}&details=${encodeURIComponent(description)}`;
     };
 
@@ -142,7 +158,10 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
                 <div className={`milestone-card-face front ${isToday ? 'today' : ''} ${isNext ? 'next' : ''}`}>
                     <div className="milestone-header">
                         <span className="day-count">{dayCount.toLocaleString()}</span>
-                        <span className={`season-badge ${season.toLowerCase()}`}>{season}</span>
+                        <span className={`season-badge ${season.toLowerCase()}`}>
+                            {renderSeasonIcon(season)}
+                            <span>{season}</span>
+                        </span>
                     </div>
                     <div className="milestone-date">{date}</div>
                     <div className="tags">

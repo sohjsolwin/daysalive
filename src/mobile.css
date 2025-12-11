@@ -355,3 +355,19 @@
     padding: 0.5rem;
     z-index: 10;
 }
+
+/* Hide Scrollbars on Mobile Containers */
+.mobile-grid::-webkit-scrollbar,
+.mobile-modal-content::-webkit-scrollbar,
+.mobile-results-section::-webkit-scrollbar {
+    display: none;
+}
+
+.mobile-grid,
+.mobile-modal-content,
+.mobile-results-section {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
