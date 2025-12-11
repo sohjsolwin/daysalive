@@ -60,15 +60,15 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
 
         if (activeDayCount) {
             const shareId = encodeMilestoneData(activeDayCount, startDate);
-            const newUrl = `/${shareId}`;
-            // Ensure we don't overwrite if nothing changed, prevents loop if already at URL
-            if (window.location.pathname !== newUrl) {
+            const newUrl = `${window.location.pathname}?m=${shareId}`;
+            // Only update if search params changed
+            if (!window.location.search.includes(shareId)) {
                 window.history.replaceState({ path: newUrl }, '', newUrl);
             }
         } else {
-            // If active day cleared, go back to root (but only if we aren't already there)
-            if (window.location.pathname !== '/' && window.location.pathname.length > 1) {
-                window.history.replaceState({ path: '/' }, '', '/');
+            // If active day cleared, remove query params
+            if (window.location.search) {
+                window.history.replaceState({ path: window.location.pathname }, '', window.location.pathname);
             }
         }
     }, [expandedMobileItem, flippedDayCount, startDate, isMobileView]);

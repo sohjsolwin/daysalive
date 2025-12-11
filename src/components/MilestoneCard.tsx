@@ -103,7 +103,7 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
 
     const getCalendarLink = () => {
         const shareId = encodeMilestoneData(dayCount, startDate);
-        const url = `https://daysa.live/${shareId}`;
+        const url = `https://daysa.live?m=${shareId}`;
 
         const title = `DaysA.live Milestone: ${dayCount.toLocaleString()} Days`;
         const description = `Celebrating ${dayCount.toLocaleString()} days alive! Check more at ${url}`;
@@ -116,7 +116,7 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
     const getShareData = () => {
         // Use startDate (User's source date, not the milestone date)
         const nonce = encodeMilestoneData(dayCount, startDate);
-        const url = `https://daysa.live?nonce=${nonce}`;
+        const url = `https://daysa.live?m=${nonce}`; // Changed from ?nonce= to ?m=
 
         // Text: "I just found my [number] [Prime/Sequence] milestone day at #DaysAlive! [link]"
         const specialTags = tags.filter(t => t === 'Prime' || t === 'Sequence');
