@@ -140,10 +140,11 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
         const beforeItems: MilestoneItem[] = [];
         let j = pivotDay - 1;
         let foundBefore = 0;
-        while (foundBefore < 4 && j > -50000) {
+        // Always try to find 4 previous entries down to day 0
+        while (foundBefore < 4 && j >= 0) {
             const item = checkDay(j);
-            const shouldInclude = (highlightDay !== undefined) || (options.showPastDays && !item?.isToday);
-            if (item && shouldInclude) { beforeItems.unshift(item); foundBefore++; }
+            // Always include valid items found in this specific backward search
+            if (item) { beforeItems.unshift(item); foundBefore++; }
             j--;
         }
 
