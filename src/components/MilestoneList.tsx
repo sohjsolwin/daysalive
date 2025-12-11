@@ -148,6 +148,15 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
 
     useEffect(() => {
         if (highlightDay) {
+            // Mobile: Auto-expand the highlighted card
+            if (isMobileView) {
+                const item = milestones.find(m => m.dayCount === highlightDay);
+                if (item) {
+                    setExpandedMobileItem(item);
+                }
+            }
+
+            // Desktop/General: Scroll to view
             const attemptScroll = (retries: number) => {
                 const element = document.getElementById(`milestone-${highlightDay}`);
                 if (element) {
@@ -156,7 +165,7 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
             };
             attemptScroll(5);
         }
-    }, [highlightDay, milestones]);
+    }, [highlightDay, milestones, isMobileView]);
 
     const CHEAT_SEQUENCE = [2, 2, 8, 8, 4, 6, 4, 6, 7, 9, 5];
     const handleCardFlip = (dayCount: number, index: number) => {

@@ -132,7 +132,7 @@ function App() {
       <div className="mobile-snap-container" onScroll={handleMobileScroll}>
         {/* Sticky Header (Hidden initially) */}
         <header className={`mobile-sticky-header ${mobileHeaderVisible ? 'visible' : ''}`}>
-          <a href="/" className="flex items-center gap-2 no-underline">
+          <a href="/" className="flex items-center gap-2 no-underline" style={{ textDecoration: 'none' }}>
             <img
               src="/logo_symbol_dark.png"
               alt="Logo"
@@ -169,7 +169,7 @@ function App() {
         {/* Section 1: Hero */}
         <section className="mobile-hero-section">
           <header className="flex flex-col items-center gap-4 mb-6 relative z-10">
-            <a href="/" className="flex flex-col items-center gap-4 no-underline">
+            <a href="/" className="flex flex-col items-center gap-4 no-underline" style={{ textDecoration: 'none' }}>
               <img
                 src="/logo_symbol_dark.png"
                 alt="Logo"
@@ -271,7 +271,7 @@ function App() {
   return (
     <div className="container">
       <header className="header relative">
-        <a href="/" className="flex items-center justify-center gap-4 mb-4 no-underline hover:opacity-90 transition-opacity">
+        <a href="/" className="flex items-center justify-center gap-4 mb-4 no-underline hover:opacity-90 transition-opacity" style={{ textDecoration: 'none' }}>
           <img
             src="/logo_symbol_dark.png"
             alt="DaysA.live Logo"
