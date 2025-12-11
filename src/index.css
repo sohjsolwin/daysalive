@@ -1096,105 +1096,103 @@ video {
 /* Highlight Animation for Milestone Card */
 .milestone-card-container.highlighted {
   animation: spinHighlight 2s linear 2 backwards;
-  /* Spin 2 times, stay at start position? or end at 360 (0) */
-  /* Actually with 360, end pos is same as start. */
-  /* User wants "selector spin". Rotating the whole card might be what they mean. */
-  /* ... existing styles ... */
-
-  /* Modal Styles */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    backdrop-filter: blur(5px);
-    animation: fadeIn 0.3s ease;
-  }
-
-  .modal-content {
-    background: rgba(30, 41, 59, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 2rem;
-    border-radius: 1rem;
-    max-width: 600px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    color: var(--text-primary);
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: var(--accent-primary);
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 2rem;
-    line-height: 1;
-    cursor: pointer;
-    padding: 0;
-  }
-
-  .close-btn:hover {
-    color: var(--text-primary);
-  }
-
-  .modal-body p {
-    line-height: 1.6;
-    margin-bottom: 1rem;
-    color: var(--text-secondary);
-  }
-
-  .modal-body strong {
-    color: var(--text-primary);
-  }
-
-  .footer-links {
-    margin-bottom: 0.5rem;
-  }
-
-  .link-btn {
-    background: rgba(56, 189, 248, 0.1);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    color: var(--accent-primary);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s;
-    cursor: pointer;
-    text-decoration: none;
-    opacity: 1;
-  }
-
-  .link-btn:hover {
-    background: rgba(56, 189, 248, 0.2);
-    transform: translateY(-1px);
-    color: var(--accent-primary);
-  }
-
-  /* 2 rotations = 2 iterations. */
 }
+
+
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  color: var(--text-primary);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--accent-primary);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.close-btn:hover {
+  color: var(--text-primary);
+}
+
+.modal-body p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+}
+
+.modal-body strong {
+  color: var(--text-primary);
+}
+
+.footer-links {
+  margin-bottom: 0.5rem;
+}
+
+.link-btn {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: var(--accent-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  opacity: 1;
+}
+
+.link-btn:hover {
+  background: rgba(56, 189, 248, 0.2);
+  transform: translateY(-1px);
+  color: var(--accent-primary);
+}
+
+/* 2 rotations = 2 iterations. */
 
 .milestone-card-container.highlighted .milestone-card-face {
   box-shadow: 0 0 30px rgba(129, 140, 248, 0.5), 0 0 15px var(--accent-secondary);

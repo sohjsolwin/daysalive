@@ -5,9 +5,11 @@
 ## Features
 
 -   **Milestone Tracking**: Automatically identifies significant day counts, such as "10,000 Days" or "12,345 Sequence".
+-   **Mobile-First Design**: A responsive, app-like experience on mobile devices with touch interactions and optimized visuals.
 -   **Interactive Flip Cards**: Each milestone is presented as a card that flips to reveal more details or actions.
--   **Calendar Integration**: Direct links to add your milestones to Google Calendar.
--   **Season Indicators**: Shows the current season for a given date.
+-   **Deep Linking**: Share specific milestones with unique "Time Travel" links.
+-   **Calendar Integration**: Direct links to add your milestones to Google Calendar (with deep link retrieval).
+-   **Season Indicators**: Visual season badges with thematic icons (❄️, 🌱, ☀️, 🍂) and colors.
 -   **Persistence**: Your start date is saved in your browser's local storage, so you don't have to re-enter it.
 -   **Shareable**: Easy sharing integration for Bluesky.
 
@@ -20,7 +22,11 @@ This project is built with a modern, performance-focused stack:
 -   **[Vite](https://vitejs.dev/)**: For fast development and bundling.
 -   **[Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)**: For celebratory effects.
 -   **[GitHub Actions](https://github.com/features/actions)**: For automated deployment to GitHub Pages.
+-   **[GitHub Actions](https://github.com/features/actions)**: For automated deployment to GitHub Pages.
 -   **[Antigravity](https://antigravity.google)**: Powered by Google DeepMind's advanced AI coding agent.
+
+## Assets
+- Logo and themes designed with a modern neon-glass aesthetic (`public/logo_symbol_dark.png`).
 
 
 ## Getting Started
