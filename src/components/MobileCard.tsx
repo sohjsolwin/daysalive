@@ -5,6 +5,7 @@ interface MobileCardProps {
     season: string;
     date: string; // YYYY-MM-DD
     tags: string[];
+    isToday?: boolean;
     onClick: () => void;
 }
 
@@ -12,6 +13,7 @@ export const MobileCard: React.FC<MobileCardProps> = ({
     dayCount,
     season,
     date,
+    isToday,
     onClick
 }) => {
 
@@ -46,7 +48,7 @@ export const MobileCard: React.FC<MobileCardProps> = ({
     };
 
     return (
-        <button className="mobile-mini-card" onClick={onClick}>
+        <button className={`mobile-mini-card ${isToday ? 'today' : ''}`} onClick={onClick}>
             <div className="mobile-mini-card-season" style={{ color }}>
                 {renderIcon()}
             </div>

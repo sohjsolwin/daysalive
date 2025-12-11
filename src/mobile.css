@@ -298,6 +298,19 @@
 
 .mobile-nav-btn:active {
     background: rgba(56, 189, 248, 0.2);
+}
+
+/* Today Highlight */
+.mobile-mini-card.today {
+    border: 1px solid var(--accent-primary);
+    background: rgba(56, 189, 248, 0.15);
+    /* Sky 400 with opacity */
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+.mobile-mini-card.today .mobile-mini-card-number {
+    color: var(--accent-primary);
+    text-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
     transform: scale(0.95);
 }
 

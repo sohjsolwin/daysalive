@@ -306,6 +306,7 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
                             season={m.season}
                             date={m.fullDate.toISOString().split('T')[0]}
                             tags={m.tags}
+                            isToday={m.isToday}
                             onClick={() => {
                                 setExpandedMobileItem(m);
                                 setIsOverlayFlipped(false);
