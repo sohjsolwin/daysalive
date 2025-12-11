@@ -143,7 +143,7 @@
     .mobile-mini-card-number {
         font-size: 1rem;
         font-weight: 700;
-        color: var(--text-primary);
+        color: var(--accent-primary);
     }
 
     .mobile-mini-card-season {
@@ -310,7 +310,7 @@
 
 .mobile-mini-card.today .mobile-mini-card-number {
     color: var(--accent-primary);
-    text-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
+    /* Removed extra glow to match desktop */
     transform: scale(0.95);
 }
 
