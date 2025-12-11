@@ -41,6 +41,7 @@ function App() {
 
   // Modal State
   const [activeModal, setActiveModal] = useState<'why' | 'privacy' | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Check for nonce in URL
@@ -102,7 +103,19 @@ function App() {
 
   return (
     <div className="container">
-      <header className="header">
+      <header className="header relative">
+        <button
+          className="mobile-nav-toggle"
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="Open Settings"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
         <div className="flex items-center justify-center gap-4 mb-4">
           <img
             src="/logo_symbol_dark.png"
@@ -120,7 +133,13 @@ function App() {
 
       {activeModal === null ? (
         <main className="main-content">
-          <div className="sidebar">
+          <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+            <button
+              className="mobile-close-sidebar"
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              ×
+            </button>
             <div className="glass-panel">
               <DateInput value={startDate} onChange={setStartDate} onClear={handleClearDate} />
             </div>
