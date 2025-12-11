@@ -132,7 +132,7 @@ function App() {
       <div className="mobile-snap-container" onScroll={handleMobileScroll}>
         {/* Sticky Header (Hidden initially) */}
         <header className={`mobile-sticky-header ${mobileHeaderVisible ? 'visible' : ''}`}>
-          <div className="flex items-center gap-2">
+          <a href="/" className="flex items-center gap-2 no-underline">
             <img
               src="/logo_symbol_dark.png"
               alt="Logo"
@@ -140,7 +140,7 @@ function App() {
               style={{ width: '32px', height: '32px', minWidth: '32px' }}
             />
             <span className="font-bold text-lg text-white">DaysA.live</span>
-          </div>
+          </a>
           <div className="mobile-date-label">
             {startDate}
           </div>
@@ -169,15 +169,22 @@ function App() {
         {/* Section 1: Hero */}
         <section className="mobile-hero-section">
           <header className="flex flex-col items-center gap-4 mb-6 relative z-10">
-            <img
-              src="/logo_symbol_dark.png"
-              alt="Logo"
-              className="w-48 h-48 object-contain"
-              style={{ width: '180px', height: '180px' }}
-            />
-            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-indigo-400 pb-1">
-              DaysA.live
-            </h1>
+            <a href="/" className="flex flex-col items-center gap-4 no-underline">
+              <img
+                src="/logo_symbol_dark.png"
+                alt="Logo"
+                className="w-48 h-48 object-contain"
+                style={{ width: '180px', height: '180px' }}
+              />
+              <h1 className="text-4xl font-bold pb-1" style={{
+                background: 'linear-gradient(to right, var(--accent-primary), var(--accent-secondary))',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                color: 'transparent'
+              }}>
+                DaysA.live
+              </h1>
+            </a>
             <p className="text-center text-slate-400 max-w-xs text-sm">
               Discover the hidden milestones in your timeline.
             </p>
@@ -264,7 +271,7 @@ function App() {
   return (
     <div className="container">
       <header className="header relative">
-        <div className="flex items-center justify-center gap-4 mb-4">
+        <a href="/" className="flex items-center justify-center gap-4 mb-4 no-underline hover:opacity-90 transition-opacity">
           <img
             src="/logo_symbol_dark.png"
             alt="DaysA.live Logo"
@@ -273,7 +280,7 @@ function App() {
           <h1 className="title mb-0 text-5xl">
             DaysA.live
           </h1>
-        </div>
+        </a>
         <p className="subtitle">
           Discover the hidden milestones in your timeline. Calculate days, find patterns, and celebrate the unique moments.
         </p>
