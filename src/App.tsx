@@ -139,7 +139,12 @@ function App() {
               className="w-8 h-8 object-contain"
               style={{ width: '32px', height: '32px', minWidth: '32px' }}
             />
-            <span className="font-bold text-lg text-white">DaysA.live</span>
+            <span className="font-bold text-lg" style={{
+              background: 'linear-gradient(to right, var(--accent-primary), var(--accent-secondary))',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent'
+            }}>DaysA.live</span>
           </a>
           <div className="mobile-date-label">
             {startDate}
