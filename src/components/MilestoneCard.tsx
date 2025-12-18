@@ -255,9 +255,10 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
                 <div className={`milestone-card-face back ${isToday ? 'today' : ''} ${isNext ? 'next' : ''}`}>
                     <div className="back-content flex flex-col justify-between items-center h-full pt-10 pb-5">
 
-                        {/* Match Front Layout: Icon + Number */}
-                        {renderMainIcon()}
-                        {renderBigNumber()}
+                        {/* Header: Date Only */}
+                        <div className="text-xl font-bold text-slate-200 mb-6 font-mono text-center drop-shadow-md">
+                            {fullDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        </div>
 
                         {/* Tags (Pills) */}
                         <div className="flex flex-wrap justify-center gap-2 mb-4 w-full px-4">
@@ -298,16 +299,16 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
                                 if (tag.includes('First day')) {
                                     const seasonMatch = tag.split(' ').pop();
                                     iconElement = (
-                                        <div className={`w-3 h-3 ${iconColorClass} [&>svg]:w-full [&>svg]:h-full`}>
+                                        <div className={`w-5 h-5 ${iconColorClass} [&>svg]:w-full [&>svg]:h-full`}>
                                             {getIconForTag(seasonMatch || season, "w-full h-full", 2)}
                                         </div>
                                     );
                                 } else {
-                                    iconElement = getIconForTag(tag, `w-3 h-3 ${iconColorClass}`, 2);
+                                    iconElement = getIconForTag(tag, `w-5 h-5 ${iconColorClass}`, 2);
                                 }
 
                                 return (
-                                    <span key={i} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap ${className}`}>
+                                    <span key={i} className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border whitespace-nowrap ${className}`}>
                                         {iconElement}
                                         {tag}
                                     </span>
