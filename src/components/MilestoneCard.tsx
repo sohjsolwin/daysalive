@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+
+import { getIconForTag, IconCalendar, IconShare, IconPrime, IconMeteor, IconSequence, IconSolarEclipse, IconSolarEclipsePartial, IconLunarEclipse, IconLunarEclipsePartial } from './EventIcons';
 import { encodeMilestoneData } from '../utils/encodingUtils';
 
 interface MilestoneCardProps {
@@ -15,25 +17,10 @@ interface MilestoneCardProps {
     startDate: string; // The user's source date
 }
 
-const renderSeasonIcon = (season: string) => {
-    const props = { width: 14, height: 14, stroke: "currentColor", strokeWidth: 2, fill: "none", viewBox: "0 0 24 24" };
-    switch (season) {
-        case 'Spring':
-            return <svg {...props}><path d="M12 2.5a4.5 4.5 0 0 1 4.5 4.5c0 2.485-2.015 4.5-4.5 4.5S7.5 9.485 7.5 7 9.515 2.5 12 2.5z" /><path d="M12 21.5v-10" /><path d="M12 16.5c-2.5 0-4.5-2-4.5-4.5" /></svg>;
-        case 'Summer':
-            return <svg {...props}><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>;
-        case 'Autumn':
-            return <svg {...props}><path d="M12 21c-5 0-9-5-9-11S7 2 12 2s9 6 9 11-4 11-9 11z" /><path d="M12 21v-8" /></svg>;
-        case 'Winter':
-            return <svg {...props}><path d="M2 12h20M12 2v20M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93" /></svg>;
-        default: return null;
-    }
-};
-
 export const MilestoneCard: React.FC<MilestoneCardProps> = ({
     dayCount,
     season,
-    date,
+    // date,
     tags,
     isToday,
     isNext,
@@ -56,7 +43,6 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
 
     // ... existing useEffect ...
     React.useEffect(() => {
-        // ... (unchanged logic) ...
         if (isFlipped === prevFlipped.current) return;
         if (isFlipped) {
             const axis = Math.random() > 0.7 ? 'x' : 'y';
@@ -94,7 +80,7 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
         if (!isFlipped) {
             // Track Card Flip
             import('../utils/analytics').then(({ trackEvent }) => {
-                trackEvent('Interaction', 'Card Flip', `Day: ${dayCount}, Type: ${tags.join(',')}`);
+                trackEvent('Interaction', 'Card Flip', `Day: ${dayCount}, Type: ${tags.join(',')} `);
             });
         }
         isClickingRef.current = true;
@@ -114,16 +100,19 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
     };
 
     const getShareData = () => {
-        // Use startDate (User's source date, not the milestone date)
         const nonce = encodeMilestoneData(dayCount, startDate);
-        const url = `https://daysa.live?m=${nonce}`; // Changed from ?nonce= to ?m=
+        const url = `https://daysa.live?m=${nonce}`;
 
-        // Text: "I just found my [number] [Prime/Sequence] milestone day at #DaysAlive! [link]"
-        const specialTags = tags.filter(t => t === 'Prime' || t === 'Sequence');
-        let label = specialTags.join('/');
-        if (!label && tags.includes('Milestone')) label = '';
-        const labelStr = label ? ` ${label}` : '';
-        const text = `I just found my ${dayCount.toLocaleString()}${labelStr} milestone day at #DaysAlive!`;
+        const hashtags = tags
+            .filter(t => t !== 'Milestone' && t !== 'Today')
+            .map(t => {
+                return '#' + t.replace(/[^\w\s]/g, '').replace(/\s+(.)/g, (_, group1) => group1.toUpperCase()).replace(/^\w/, c => c.toUpperCase());
+            });
+
+        if (tags.includes('Milestone')) hashtags.push('#Milestone');
+
+        const tagsStr = hashtags.length > 0 ? ` ${hashtags.join(' ')}` : '';
+        const text = `I just found my ${dayCount.toLocaleString()} day${tagsStr} at #DaysAlive!`;
 
         return { url, text };
     };
@@ -147,6 +136,74 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
 
     const { url: shareUrl, text: shareText } = getShareData();
 
+    // Helper: Render Main Icon (Large)
+    const renderMainIcon = () => (
+        <div className="flex justify-center gap-8 items-center w-full mb-4">
+            {tags.includes('Prime') && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Prime Number">
+                    <IconPrime className="w-full h-full text-sky-400" strokeWidth={1.5} />
+                </div>
+            )}
+            {tags.some(t => t.includes('Solstice')) && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Solstice">
+                    <div className="w-full h-full text-yellow-400 animate-spin-slow">
+                        {getIconForTag(tags.find(t => t.includes('Solstice')) || 'Solstice', "w-full h-full", 1.5)}
+                    </div>
+                </div>
+            )}
+            {tags.some(t => t.includes('Equinox')) && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Equinox">
+                    <div className="w-full h-full text-indigo-400">
+                        {getIconForTag(tags.find(t => t.includes('Equinox')) || 'Equinox', "w-full h-full", 1.5)}
+                    </div>
+                </div>
+            )}
+            {tags.some(t => t.includes('First day')) && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title={tags.find(t => t.includes('First day')) || "New Season"}>
+                    <div className="text-emerald-400 w-full h-full">
+                        {getIconForTag(season, "w-full h-full text-emerald-400", 1.5)}
+                    </div>
+                </div>
+            )}
+            {tags.some(t => t.includes('Meteor')) && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Meteor Shower">
+                    <IconMeteor className="w-full h-full text-purple-400" strokeWidth={1.5} />
+                </div>
+            )}
+            {tags.includes('Sequence') && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Fun Sequence">
+                    <IconSequence className="w-full h-full text-pink-400" strokeWidth={1.5} />
+                </div>
+            )}
+            {tags.some(t => t.includes('Eclipse')) && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Eclipse">
+                    {tags.some(t => t.toLowerCase() === 'solar eclipse') && <IconSolarEclipse className="w-full h-full text-red-400" strokeWidth={1.5} />}
+                    {tags.some(t => t.toLowerCase().includes('solar eclipse (partial)')) && <IconSolarEclipsePartial className="w-full h-full text-orange-400" strokeWidth={1.5} />}
+                    {tags.some(t => t.toLowerCase().includes('lunar eclipse')) && <IconLunarEclipse className="w-full h-full text-red-300" strokeWidth={1.5} />}
+                    {tags.some(t => t.toLowerCase().includes('lunar eclipse (partial)')) && <IconLunarEclipsePartial className="w-full h-full text-orange-200" strokeWidth={1.5} />}
+                </div>
+            )}
+        </div>
+    );
+
+    // Helper: Render Big Number
+    const renderBigNumber = () => (
+        <div className="flex flex-col items-center flex-grow justify-center mb-2">
+            <div className="text-5xl font-black leading-none tracking-tight mb-2" style={{
+                background: 'linear-gradient(to right, var(--accent-primary), var(--accent-secondary))',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                color: 'transparent',
+                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+            }}>
+                {dayCount.toLocaleString()}
+            </div>
+            <div className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                Days Alive
+            </div>
+        </div>
+    );
+
     return (
         <div
             id={`milestone-${dayCount}`}
@@ -155,126 +212,192 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
         >
             <div className={`milestone-card-inner animation-${animationType}`}>
                 {/* Front Face */}
-                <div className={`milestone-card-face front ${isToday ? 'today' : ''} ${isNext ? 'next' : ''}`}>
-                    <div className="milestone-header">
-                        <span className="day-count">{dayCount.toLocaleString()}</span>
-                        <span className={`season-badge ${season.toLowerCase()}`}>
-                            {renderSeasonIcon(season)}
-                            <span>{season}</span>
-                        </span>
-                    </div>
-                    <div className="milestone-date">{date}</div>
-                    <div className="tags">
-                        {tags.map((tag, idx) => (
-                            <span key={idx} className={`tag ${tag === 'Milestone' ? 'milestone' :
-                                tag === 'Prime' ? 'prime' :
-                                    tag === 'Sequence' ? 'sequence' :
-                                        tag === 'Today' ? 'today-tag' :
-                                            ''
-                                }`}>
-                                {tag}
-                            </span>
-                        ))}
+                <div className="milestone-card-face front">
+                    <div className="front-content flex flex-col items-center w-full h-full justify-between pt-10 pb-5">
+
+                        {renderMainIcon()}
+                        {renderBigNumber()}
+
+                        {/* Actions */}
+                        <div className="flex flex-col items-center w-full px-4 gap-4">
+                            <a
+                                href={getCalendarLink()}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="action-btn calendar-btn w-full justify-center py-2"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    import('../utils/analytics').then(({ trackEvent }) => {
+                                        trackEvent('Share', 'Add to Calendar', `Day: ${dayCount}`);
+                                    });
+                                }}
+                            >
+                                <IconCalendar className="w-4 h-4" strokeWidth={1.5} />
+                                Add to Calendar
+                            </a>
+
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleFlip();
+                                }}
+                                className="action-btn share-btn w-full justify-center py-2"
+                            >
+                                <IconShare className="w-4 h-4" strokeWidth={1.5} />
+                                Share Milestone
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 
                 {/* Back Face */}
                 <div className={`milestone-card-face back ${isToday ? 'today' : ''} ${isNext ? 'next' : ''}`}>
-                    <div className="back-content">
-                        <h4 className="text-lg font-bold mb-1 text-white">Share Milestone</h4>
-                        <div className="text-sm font-bold mb-4" style={{ color: 'var(--accent-primary)' }}>
-                            {dayCount.toLocaleString()} Days Alive
+                    <div className="back-content flex flex-col justify-between items-center h-full pt-10 pb-5">
+
+                        {/* Match Front Layout: Icon + Number */}
+                        {renderMainIcon()}
+                        {renderBigNumber()}
+
+                        {/* Tags (Pills) */}
+                        <div className="flex flex-wrap justify-center gap-2 mb-4 w-full px-4">
+                            {tags.map((tag, i) => {
+                                let className = "bg-slate-800/80 text-slate-300 border-slate-700/50";
+                                let iconColorClass = "text-current";
+
+                                if (tag === 'Prime') {
+                                    className = "bg-sky-900/30 text-sky-200 border-sky-500/30";
+                                    iconColorClass = "text-sky-400";
+                                } else if (tag.toLowerCase().includes('solstice')) {
+                                    className = "bg-yellow-900/30 text-yellow-200 border-yellow-500/30";
+                                    iconColorClass = "text-yellow-400";
+                                } else if (tag.toLowerCase().includes('equinox')) {
+                                    className = "bg-indigo-900/30 text-indigo-200 border-indigo-500/30";
+                                    iconColorClass = "text-indigo-400";
+                                } else if (tag.toLowerCase().includes('meteor')) {
+                                    className = "bg-purple-900/30 text-purple-200 border-purple-500/30";
+                                    iconColorClass = "text-purple-400";
+                                } else if (tag.toLowerCase().includes('first day')) {
+                                    className = "bg-emerald-900/30 text-emerald-200 border-emerald-500/30";
+                                    iconColorClass = "text-emerald-400";
+                                } else if (tag === 'Sequence') {
+                                    className = "bg-pink-900/30 text-pink-200 border-pink-500/30";
+                                    iconColorClass = "text-pink-400";
+                                } else if (tag === 'Milestone') {
+                                    className = "bg-blue-900/30 text-blue-200 border-blue-500/30";
+                                    iconColorClass = "text-blue-400";
+                                } else if (tag === 'Today') {
+                                    className = "bg-orange-900/30 text-orange-200 border-orange-500/30";
+                                    iconColorClass = "text-orange-400";
+                                } else if (tag.toLowerCase().includes('eclipse')) {
+                                    className = "bg-red-900/30 text-red-200 border-red-500/30";
+                                    iconColorClass = "text-red-400";
+                                }
+
+                                let iconElement;
+                                if (tag.includes('First day')) {
+                                    const seasonMatch = tag.split(' ').pop();
+                                    iconElement = (
+                                        <div className={`w-3 h-3 ${iconColorClass} [&>svg]:w-full [&>svg]:h-full`}>
+                                            {getIconForTag(seasonMatch || season, "w-full h-full", 2)}
+                                        </div>
+                                    );
+                                } else {
+                                    iconElement = getIconForTag(tag, `w-3 h-3 ${iconColorClass}`, 2);
+                                }
+
+                                return (
+                                    <span key={i} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap ${className}`}>
+                                        {iconElement}
+                                        {tag}
+                                    </span>
+                                );
+                            })}
                         </div>
 
-                        <a
-                            href={getCalendarLink()}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="action-btn calendar-btn"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                import('../utils/analytics').then(({ trackEvent }) => {
-                                    trackEvent('Share', 'Add to Calendar', `Day: ${dayCount}`);
-                                });
-                            }}
-                        >
-                            📅 Add to Calendar
-                        </a>
+                        {/* Share Section (Social Links) */}
+                        <div className="flex flex-col items-center w-full gap-3 px-4">
+                            <div className="w-full flex flex-col items-center gap-2">
+                                <div className="h-[2px] w-3/4 bg-gradient-to-r from-transparent via-indigo-500 to-transparent shadow-lg text-indigo-500"></div>
+                                <h4 className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Share Milestone</h4>
+                            </div>
 
-                        <div className="social-links">
-                            <button
-                                onClick={handleCopyLink}
-                                className={`social-icon copy-link ${copied ? 'copied' : ''}`}
-                                title="Copy Link"
-                                style={copied ? { backgroundColor: '#10B981', borderColor: '#10B981', color: 'white' } : {}}
-                            >
-                                {copied ? (
+                            <div className="social-links justify-center w-full gap-4">
+                                <button
+                                    onClick={handleCopyLink}
+                                    className={`social-icon copy-link ${copied ? 'copied' : ''}`}
+                                    title="Copy Link"
+                                    style={copied ? { backgroundColor: '#10B981', borderColor: '#10B981', color: 'white' } : {}}
+                                >
+                                    {copied ? (
+                                        <svg role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                                        </svg>
+                                    ) : (
+                                        <svg role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
+                                        </svg>
+                                    )}
+                                </button>
+                                <a
+                                    href={`https://bsky.app/intent/compose?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="social-icon bluesky"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        import('../utils/analytics').then(({ trackEvent }) => trackEvent('Share', 'Social Click', 'Bluesky'));
+                                    }}
+                                    title="Share on Bluesky"
+                                >
                                     <svg role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                                        <path d="M5.202 2.857C7.954 4.922 10.913 9.11 12 11.358c1.087-2.247 4.046-6.436 6.798-8.501C20.783 1.366 24 .213 24 3.883c0 .732-.42 6.156-.667 7.037-.856 3.061-3.978 3.842-6.755 3.37 4.854.826 6.089 3.562 3.422 6.299-5.065 5.196-7.28-1.304-7.847-2.97-.104-.305-.152-.448-.153-.327 0-.121-.05.022-.153.327-.568 1.666-2.782 8.166-7.847 2.97-2.667-2.737-1.432-5.473 3.422-6.3-2.777.473-5.899-.308-6.755-3.369C.42 10.04 0 4.615 0 3.883c0-3.67 3.217-2.517 5.202-1.026" />
                                     </svg>
-                                ) : (
-                                    <svg role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
-                                    </svg>
-                                )}
-                            </button>
-                            <a
-                                href={`https://bsky.app/intent/compose?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="social-icon bluesky"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    import('../utils/analytics').then(({ trackEvent }) => trackEvent('Share', 'Social Click', 'Bluesky'));
-                                }}
-                                title="Share on Bluesky"
-                            >
-                                <svg role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5.202 2.857C7.954 4.922 10.913 9.11 12 11.358c1.087-2.247 4.046-6.436 6.798-8.501C20.783 1.366 24 .213 24 3.883c0 .732-.42 6.156-.667 7.037-.856 3.061-3.978 3.842-6.755 3.37 4.854.826 6.089 3.562 3.422 6.299-5.065 5.196-7.28-1.304-7.847-2.97-.104-.305-.152-.448-.153-.327 0-.121-.05.022-.153.327-.568 1.666-2.782 8.166-7.847 2.97-2.667-2.737-1.432-5.473 3.422-6.3-2.777.473-5.899-.308-6.755-3.369C.42 10.04 0 4.615 0 3.883c0-3.67 3.217-2.517 5.202-1.026" />
-                                </svg>
-                            </a>
-                            <a
-                                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="social-icon twitter"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    import('../utils/analytics').then(({ trackEvent }) => trackEvent('Share', 'Social Click', 'Twitter'));
-                                }}
-                                title="Share on Twitter"
-                            >
-                                𝕏
-                            </a>
-                            <a
-                                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="social-icon facebook"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    import('../utils/analytics').then(({ trackEvent }) => trackEvent('Share', 'Social Click', 'Facebook'));
-                                }}
-                                title="Share on Facebook"
-                            >
-                                f
-                            </a>
-                            <a
-                                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="social-icon linkedin"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    import('../utils/analytics').then(({ trackEvent }) => trackEvent('Share', 'Social Click', 'LinkedIn'));
-                                }}
-                                title="Share on LinkedIn"
-                            >
-                                in
-                            </a>
+                                </a>
+                                <a
+                                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="social-icon twitter"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        import('../utils/analytics').then(({ trackEvent }) => trackEvent('Share', 'Social Click', 'Twitter'));
+                                    }}
+                                    title="Share on Twitter"
+                                >
+                                    𝕏
+                                </a>
+                                <a
+                                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="social-icon facebook"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        import('../utils/analytics').then(({ trackEvent }) => trackEvent('Share', 'Social Click', 'Facebook'));
+                                    }}
+                                    title="Share on Facebook"
+                                >
+                                    f
+                                </a>
+                                <a
+                                    href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="social-icon linkedin"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        import('../utils/analytics').then(({ trackEvent }) => trackEvent('Share', 'Social Click', 'LinkedIn'));
+                                    }}
+                                    title="Share on LinkedIn"
+                                >
+                                    in
+                                </a>
+                            </div>
                         </div>
 
                     </div>
+                    {/* Add overlay to catch clicks on background to flip back? handled by parent */}
                 </div>
             </div>
         </div>

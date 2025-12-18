@@ -565,6 +565,27 @@ video {
   border-radius: 16px;
   border-left: 4px solid transparent;
   transition: transform 0.3s ease, border-color 0.3s ease;
+  /* Folded Corner Clip (Top Left) */
+  clip-path: polygon(30px 0, 100% 0, 100% 100%, 0 100%, 0 30px);
+}
+
+/* Fold Flap on Front Face */
+.milestone-card-face.front::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  /* The flap background (should look like the back of the card) */
+  background: linear-gradient(135deg, transparent 50%, rgba(30, 41, 59, 0.9) 50%);
+  /* The highlight edge (Left edge folded down -> Bottom edge of flap) */
+  border-bottom: 4px solid var(--accent-primary);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  /* Subtle definition */
+  border-bottom-right-radius: 6px;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
 }
 
 .milestone-card-container:hover .milestone-card-face.front {
@@ -574,21 +595,34 @@ video {
 
 .milestone-card-face.back {
   background: rgba(30, 41, 59, 0.95);
-  /* Darker for better contrast */
   justify-content: center;
   align-items: center;
   text-align: center;
-  border-color: var(--accent-secondary);
+  /* Reset default borders for specific axis styling */
+  border: 1px solid var(--border-color);
+  /* Folded Corner Clip (Top Right - mirrored) */
+  clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 0 100%);
 }
 
 /* Back Face Rotation based on Axis */
 .milestone-card-container.axis-y .milestone-card-face.back {
   transform: rotateY(180deg);
+  border-right: 4px solid var(--accent-primary);
+  border-left: 1px solid var(--border-color);
+  /* Y-Flip: Fold moves from Left(Front) to Right(Back) on Top edge */
+  clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 0 100%);
 }
 
 .milestone-card-container.axis-x .milestone-card-face.back {
   transform: rotateX(180deg);
+  /* On X flip, left stays left */
+  border-left: 4px solid var(--accent-primary);
+  border-right: 1px solid var(--border-color);
+  /* X-Flip: Fold moves from Top(Front) to Bottom(Back) on Left edge */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 30px 100%, 0 calc(100% - 30px));
 }
+
+/* Remove old fold styles */
 
 .back-content {
   display: flex;
@@ -612,15 +646,22 @@ video {
   max-width: 200px;
 }
 
-.calendar-btn {
+.calendar-btn,
+.share-btn {
   background: rgba(56, 189, 248, 0.1);
   color: var(--accent-primary);
   border: 1px solid rgba(56, 189, 248, 0.3);
+  cursor: pointer;
+  gap: 0.5rem;
+  /* Ensure gap for icon + text */
 }
 
-.calendar-btn:hover {
+.calendar-btn:hover,
+.share-btn:hover {
   background: rgba(56, 189, 248, 0.2);
   transform: translateY(-1px);
+  color: var(--accent-primary);
+  /* Ensure color stays consistent */
 }
 
 .social-links {
@@ -1050,6 +1091,38 @@ video {
     border-right-width: 1px;
     border-right-style: solid;
   }
+}
+
+.w-3 {
+  width: 0.75rem;
+}
+
+.h-3 {
+  height: 0.75rem;
+}
+
+.w-4 {
+  width: 1rem;
+}
+
+.h-4 {
+  height: 1rem;
+}
+
+.w-5 {
+  width: 1.25rem;
+}
+
+.h-5 {
+  height: 1.25rem;
+}
+
+.w-6 {
+  width: 1.5rem;
+}
+
+.h-6 {
+  height: 1.5rem;
 }
 
 .w-12 {

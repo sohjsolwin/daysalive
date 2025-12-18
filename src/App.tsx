@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 
 import { DateInput } from './components/DateInput';
 import { OptionsPanel, type Options } from './components/OptionsPanel';
@@ -15,7 +16,7 @@ function App() {
   // Lazy Initialize State from URL
   const [initialUrlState] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    const shareId = params.get('m') || params.get('nonce');
+    const shareId = params.get('m');
     if (shareId) {
       try {
         return decodeMilestoneData(shareId);
@@ -60,10 +61,17 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Cleanup / Error Handling Effect
+    // Cleanup / Error Handling Effect and Routing Logic
     const params = new URLSearchParams(window.location.search);
-    const shareId = params.get('m') || params.get('nonce');
+    const shareId = params.get('m');
+    const modalParam = params.get('modal');
 
+    // 1. Check for modal params
+    if (modalParam === 'why') setActiveModal('why');
+    else if (modalParam === 'privacy') setActiveModal('privacy');
+    else if (!modalParam && activeModal) setActiveModal(null);
+
+    // 2. Handle Share ID
     if (shareId) {
       if (!initialUrlState) {
         // Initial parsing failed -> Show Error
@@ -72,10 +80,6 @@ function App() {
           setShowError(false);
           window.history.replaceState({}, '', window.location.pathname);
         }, 4000);
-      } else if (params.get('nonce')) {
-        // Upgrade legacy link
-        const newUrl = `${window.location.pathname}?m=${shareId}`;
-        window.history.replaceState({}, '', newUrl);
       }
     }
 
@@ -90,7 +94,19 @@ function App() {
       .then(text => setPrivacyContent(text))
       .catch(err => console.error('Failed to load PRIVACY.md', err));
 
-  }, []);
+    // Handle back button for modals
+    const handlePopState = () => {
+      const uParams = new URLSearchParams(window.location.search);
+      const m = uParams.get('modal');
+      if (m === 'why') setActiveModal('why');
+      else if (m === 'privacy') setActiveModal('privacy');
+      else setActiveModal(null);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+
+  }, []); // Initial mount only
 
   useEffect(() => {
     localStorage.setItem('daysa.live.startDate', startDate);
@@ -104,7 +120,24 @@ function App() {
   };
 
   const toggleModal = (modal: 'why' | 'privacy') => {
-    setActiveModal(prev => prev === modal ? null : modal);
+    const nextState = activeModal === modal ? null : modal;
+
+    // Update URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (nextState) {
+      urlParams.set('modal', nextState);
+    } else {
+      urlParams.delete('modal');
+    }
+
+    // Construct new URL
+    const newPath = `${window.location.pathname}${urlParams.toString() ? '?' + urlParams.toString() : ''}`;
+
+    // We push (instead of replace) to allow back button
+    window.history.pushState({ modal: nextState }, '', newPath);
+
+    // State update (also triggers re-render)
+    setActiveModal(nextState);
   };
 
   if (showError) {
@@ -277,7 +310,7 @@ function App() {
             <div className="mobile-modal-content custom-scrollbar">
               <button className="mobile-modal-close" onClick={() => setActiveModal(null)}>&times;</button>
               <div className="modal-markdown">
-                <ReactMarkdown>{activeModal === 'why' ? whyContent : privacyContent}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{activeModal === 'why' ? whyContent : privacyContent}</ReactMarkdown>
               </div>
             </div>
           </div>
@@ -337,7 +370,7 @@ function App() {
               {activeModal === 'why' && (
                 <div className="modal-markdown">
                   {whyContent ? (
-                    <ReactMarkdown>{whyContent}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{whyContent}</ReactMarkdown>
                   ) : (
                     <p>Loading...</p>
                   )}
@@ -347,7 +380,7 @@ function App() {
               {activeModal === 'privacy' && (
                 <div className="modal-markdown">
                   {privacyContent ? (
-                    <ReactMarkdown>{privacyContent}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{privacyContent}</ReactMarkdown>
                   ) : (
                     <p>Loading...</p>
                   )}

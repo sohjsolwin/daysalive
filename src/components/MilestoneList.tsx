@@ -96,39 +96,67 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({ startDate, options
     // but replace_file_content needs contiguous block. 
     // I will assume checkDay is identical.
     const checkDay = useCallback((i: number): MilestoneItem | null => {
-        // ... (Keep existing checkDay logic exactly as is) ...
-        let isCandidate = false;
-        const tags: string[] = [];
+        // Calculate basic properties first
+        const date = getDateFromDays(start, i);
         const currentDayCount = calculateDaysFrom(start, new Date());
 
-        if (options.milestoneMode !== 'none') {
-            let interval = 500;
-            if (options.milestoneMode === '1000') interval = 1000;
-            if (options.milestoneMode === 'custom' && options.customMilestone > 0) interval = options.customMilestone;
-            if (isMilestone(i, interval)) { isCandidate = true; tags.push('Milestone'); }
-        }
-        if (options.showPrimes && isPrime(i)) { isCandidate = true; tags.push('Prime'); }
-        if (options.showSequences && isSequence(i)) { isCandidate = true; tags.push('Sequence'); }
+        // 1. Identification
+        const isMilestoneDay = options.milestoneMode !== 'none' && isMilestone(i, options.milestoneMode === 'custom' ? options.customMilestone : (options.milestoneMode === '1000' ? 1000 : 500));
+        const isPrimeDay = isPrime(i);
+        const isSequenceDay = isSequence(i);
 
-        if (!isCandidate && i !== currentDayCount) return null;
-
-        const date = getDateFromDays(start, i);
         const season = getSeason(date);
         const events = getEventsForDate(date);
-
         const isHoliday = events.some(e => !e.includes('Meteor') && !e.includes('Equinox') && !e.includes('Solstice'));
+        // Celestial: Meteors, Equinoxes, Solstices
         const isCelestial = events.some(e => e.includes('Meteor') || e.includes('Equinox') || e.includes('Solstice'));
+        // Seasonal Markers: Solstices, Equinoxes, "First day of..."
         const isSeasonChange = (i > 1 && getSeason(getDateFromDays(start, i - 1)) !== season) || i === 1;
+        // Solstices and Equinoxes are strictly Seasonal Markers too
+        const isSolarEvent = events.some(e => e.includes('Equinox') || e.includes('Solstice'));
+        const isSeasonalMarker = isSeasonChange || isSolarEvent;
 
-        if (options.filterHolidays && !isHoliday && i !== currentDayCount) return null;
-        if (options.filterBySeason && i !== currentDayCount) {
-            if (!isSeasonChange) return null;
+        // 2. Additive Selection (Primary Selectors)
+        // If the day matches ANY of these enabled categories, it is a candidate.
+        let shouldShow = false;
+
+        if (isMilestoneDay) shouldShow = true;
+        if (options.showPrimes && isPrimeDay) shouldShow = true;
+        if (options.showSequences && isSequenceDay) shouldShow = true;
+        // User pointed out missing "Seasonal Markers" selector logic
+        if (options.showSeasonalMarkers && isSeasonalMarker) shouldShow = true;
+        // "Filter Holidays" behaves as a Selector here (Show Holidays)
+        if (options.filterHolidays && isHoliday) shouldShow = true;
+        if (options.filterCelestial && isCelestial) shouldShow = true;
+
+        // Always include Today if within range? Usually yes.
+        if (i === currentDayCount) shouldShow = true;
+
+        if (!shouldShow) return null;
+
+        // 3. Subtractive Filtering (Secondary Filters)
+        // These apply to ALL selected days. If a day is selected but fails these filters, it is hidden.
+
+        // Season Filter
+        if (options.filterBySeason) {
+            // If the season of this day is unchecked in options, hide it.
+            // options.seasons = { Spring: true, Summer: false ... }
             if (!options.seasons[season as keyof typeof options.seasons]) return null;
         }
-        if (options.filterCelestial && !isCelestial && i !== currentDayCount) return null;
+
+        // 4. Tagging
+        // Tag valid properties regardless of what triggered the selection?
+        // User requested: "If the Prime selector is chosen, it should adding in all... but if a Prime day coincides... it should not be excluded".
+        const tags: string[] = [];
+
+        if (isMilestoneDay) tags.push('Milestone');
+        // Only tag Prime/Sequence if they are actual properties of the number.
+        if (isPrimeDay) tags.push('Prime');
+        if (isSequenceDay) tags.push('Sequence');
 
         if (isSeasonChange) tags.push(`First day of ${season}`);
         events.forEach(e => tags.push(e));
+
         if (i === currentDayCount) tags.push('Today');
 
         return {
