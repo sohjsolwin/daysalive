@@ -32,6 +32,9 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
 }) => {
     // 'default' | 'bounce' | 'spin' | 'unflip-bounce' | 'unflip-spin'
     const [animationType, setAnimationType] = useState('default');
+    const [shareOnlyMode, setShareOnlyMode] = useState(false);
+
+
     // 'y' (default, horizontal flip) | 'x' (vertical flip)
     const [flipAxis, setFlipAxis] = useState<'y' | 'x'>('y');
 
@@ -77,6 +80,8 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
     }, [isFlipped]);
 
     const handleFlip = () => {
+        if (isFlipped && shareOnlyMode) setShareOnlyMode(false);
+
         if (!isFlipped) {
             // Track Card Flip
             import('../utils/analytics').then(({ trackEvent }) => {
@@ -136,53 +141,82 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
 
     const { url: shareUrl, text: shareText } = getShareData();
 
-    // Helper: Render Main Icon (Large)
+    // Helper: Render Main Icon (Front) - Synchronized with Back Face logic
     const renderMainIcon = () => (
-        <div className="flex justify-center gap-8 items-center w-full mb-4">
+        <div className="flex-grow flex items-center justify-center gap-8 px-4 flex-wrap mb-2">
+
+            {/* 1. Prime */}
             {tags.includes('Prime') && (
-                <div className="flex flex-col items-center justify-center w-16 h-16" title="Prime Number">
-                    <IconPrime className="w-full h-full text-sky-400" strokeWidth={1.5} />
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Prime Number" style={{ color: '#38bdf8' }}>
+                    <IconPrime className="w-full h-full" strokeWidth={1.5} />
                 </div>
             )}
-            {tags.some(t => t.includes('Solstice')) && (
-                <div className="flex flex-col items-center justify-center w-16 h-16" title="Solstice">
-                    <div className="w-full h-full text-yellow-400 animate-spin-slow">
-                        {getIconForTag(tags.find(t => t.includes('Solstice')) || 'Solstice', "w-full h-full", 1.5)}
+
+            {/* 2. Solstice */}
+            {tags.some(t => t.toLowerCase().includes('solstice')) && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Solstice" style={{ color: tags.some(t => t.toLowerCase().includes('winter')) ? '#818cf8' : '#f87171' }}>
+                    {getIconForTag(tags.find(t => t.toLowerCase().includes('solstice')) || 'Solstice', "w-full h-full", 1.5)}
+                </div>
+            )}
+
+            {/* 3. Equinox */}
+            {tags.some(t => t.toLowerCase().includes('equinox')) && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Equinox" style={{ color: tags.some(t => t.toLowerCase().includes('spring') || t.toLowerCase().includes('vernal')) ? '#34d399' : '#fb923c' }}>
+                    {getIconForTag(tags.find(t => t.toLowerCase().includes('equinox')) || 'Equinox', "w-full h-full", 1.5)}
+                </div>
+            )}
+
+            {/* 4. First Day */}
+            {tags.some(t => t.toLowerCase().includes('first day')) && (() => {
+                const tag = tags.find(t => t.toLowerCase().includes('first day')) || '';
+                const seasonMatch = tag.split(' ').pop() || '';
+                const lowerTag = tag.toLowerCase();
+                let color = '#94a3b8';
+                let iconStroke: string | undefined = undefined;
+
+                if (lowerTag.includes('spring')) { color = '#34d399'; iconStroke = "url(#spring-transition)"; }
+                else if (lowerTag.includes('summer')) { color = '#f87171'; iconStroke = "url(#summer-transition)"; }
+                else if (lowerTag.includes('autumn')) { color = '#fb923c'; iconStroke = "url(#autumn-transition)"; }
+                else if (lowerTag.includes('winter')) { color = '#818cf8'; iconStroke = "url(#winter-transition)"; }
+
+                return (
+                    <div className="flex flex-col items-center justify-center w-16 h-16" title={tag} style={{ color }}>
+                        {getIconForTag(seasonMatch, "w-full h-full", 1.5, iconStroke)}
                     </div>
+                );
+            })()}
+
+            {/* 5. Meteor */}
+            {tags.some(t => t.toLowerCase().includes('meteor')) && (
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Meteor Shower" style={{ color: '#c084fc' }}>
+                    <IconMeteor className="w-full h-full" strokeWidth={1.5} />
                 </div>
             )}
-            {tags.some(t => t.includes('Equinox')) && (
-                <div className="flex flex-col items-center justify-center w-16 h-16" title="Equinox">
-                    <div className="w-full h-full text-indigo-400">
-                        {getIconForTag(tags.find(t => t.includes('Equinox')) || 'Equinox', "w-full h-full", 1.5)}
-                    </div>
-                </div>
-            )}
-            {tags.some(t => t.includes('First day')) && (
-                <div className="flex flex-col items-center justify-center w-16 h-16" title={tags.find(t => t.includes('First day')) || "New Season"}>
-                    <div className="text-emerald-400 w-full h-full">
-                        {getIconForTag(season, "w-full h-full text-emerald-400", 1.5)}
-                    </div>
-                </div>
-            )}
-            {tags.some(t => t.includes('Meteor')) && (
-                <div className="flex flex-col items-center justify-center w-16 h-16" title="Meteor Shower">
-                    <IconMeteor className="w-full h-full text-purple-400" strokeWidth={1.5} />
-                </div>
-            )}
+
+            {/* 6. Sequence */}
             {tags.includes('Sequence') && (
-                <div className="flex flex-col items-center justify-center w-16 h-16" title="Fun Sequence">
-                    <IconSequence className="w-full h-full text-pink-400" strokeWidth={1.5} />
+                <div className="flex flex-col items-center justify-center w-16 h-16" title="Fun Sequence" style={{ color: '#f472b6' }}>
+                    <IconSequence className="w-full h-full" strokeWidth={1.5} />
                 </div>
             )}
-            {tags.some(t => t.includes('Eclipse')) && (
-                <div className="flex flex-col items-center justify-center w-16 h-16" title="Eclipse">
-                    {tags.some(t => t.toLowerCase() === 'solar eclipse') && <IconSolarEclipse className="w-full h-full text-red-400" strokeWidth={1.5} />}
-                    {tags.some(t => t.toLowerCase().includes('solar eclipse (partial)')) && <IconSolarEclipsePartial className="w-full h-full text-orange-400" strokeWidth={1.5} />}
-                    {tags.some(t => t.toLowerCase().includes('lunar eclipse')) && <IconLunarEclipse className="w-full h-full text-red-300" strokeWidth={1.5} />}
-                    {tags.some(t => t.toLowerCase().includes('lunar eclipse (partial)')) && <IconLunarEclipsePartial className="w-full h-full text-orange-200" strokeWidth={1.5} />}
-                </div>
-            )}
+
+            {/* 7. Eclipse */}
+            {tags.some(t => t.toLowerCase().includes('eclipse')) && (() => {
+                let iconElement;
+                let color = '#f87171';
+                const lowerTags = tags.map(t => t.toLowerCase());
+
+                if (lowerTags.includes('solar eclipse')) { iconElement = <IconSolarEclipse className="w-full h-full" strokeWidth={1.5} />; }
+                else if (lowerTags.some(t => t.includes('solar eclipse (partial)'))) { color = '#fb923c'; iconElement = <IconSolarEclipsePartial className="w-full h-full" strokeWidth={1.5} />; }
+                else if (lowerTags.includes('lunar eclipse')) { color = '#fca5a5'; iconElement = <IconLunarEclipse className="w-full h-full" strokeWidth={1.5} />; }
+                else if (lowerTags.some(t => t.includes('lunar eclipse (partial)'))) { color = '#fed7aa'; iconElement = <IconLunarEclipsePartial className="w-full h-full" strokeWidth={1.5} />; }
+
+                return iconElement ? (
+                    <div className="flex flex-col items-center justify-center w-16 h-16" title="Eclipse" style={{ color }}>
+                        {iconElement}
+                    </div>
+                ) : null;
+            })()}
         </div>
     );
 
@@ -219,32 +253,33 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
                         {renderBigNumber()}
 
                         {/* Actions */}
-                        <div className="flex flex-col items-center w-full px-4 gap-4">
+                        <div className="flex flex-row items-center w-full px-4 gap-4 justify-center">
                             <a
                                 href={getCalendarLink()}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="action-btn calendar-btn w-full justify-center py-2"
+                                className="action-btn calendar-btn justify-center py-2 px-4 w-auto"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     import('../utils/analytics').then(({ trackEvent }) => {
                                         trackEvent('Share', 'Add to Calendar', `Day: ${dayCount}`);
                                     });
                                 }}
+                                title="Add to Calendar"
                             >
-                                <IconCalendar className="w-4 h-4" strokeWidth={1.5} />
-                                Add to Calendar
+                                <IconCalendar className="w-5 h-5" strokeWidth={1.5} />
                             </a>
 
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    handleFlip();
+                                    setShareOnlyMode(true);
+                                    if (!isFlipped) onFlip();
                                 }}
-                                className="action-btn share-btn w-full justify-center py-2"
+                                className="action-btn share-btn justify-center py-2 px-4 w-auto"
+                                title="Share Milestone"
                             >
-                                <IconShare className="w-4 h-4" strokeWidth={1.5} />
-                                Share Milestone
+                                <IconShare className="w-5 h-5" strokeWidth={1.5} />
                             </button>
                         </div>
 
@@ -253,68 +288,116 @@ export const MilestoneCard: React.FC<MilestoneCardProps> = ({
 
                 {/* Back Face */}
                 <div className={`milestone-card-face back ${isToday ? 'today' : ''} ${isNext ? 'next' : ''}`}>
-                    <div className="back-content flex flex-col justify-between items-center h-full pt-10 pb-5">
 
-                        {/* Header: Date Only */}
-                        <div className="text-xl font-bold text-slate-200 mb-6 font-mono text-center drop-shadow-md">
-                            {fullDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                        </div>
+                    {/* Procedural Seasonal Embossment */}
+                    {(() => {
+                        const seed = Math.abs(Math.sin(dayCount * 1.5));
+                        const seasonName = season || 'Winter';
+                        let BgIcon = getIconForTag(seasonName, "w-full h-full", 1);
 
-                        {/* Tags (Pills) */}
-                        <div className="flex flex-wrap justify-center gap-2 mb-4 w-full px-4">
-                            {tags.map((tag, i) => {
-                                let className = "bg-slate-800/80 text-slate-300 border-slate-700/50";
-                                let iconColorClass = "text-current";
+                        // Default Scatter
+                        let pattern = (
+                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'hidden', opacity: 0.03, zIndex: 0, pointerEvents: 'none' }}>
+                                <div style={{ position: 'absolute', top: '-20%', left: '-20%', width: '60%', height: '60%', transform: 'rotate(-12deg)' }}>{BgIcon}</div>
+                                <div style={{ position: 'absolute', bottom: '-10%', right: '-30%', width: '80%', height: '80%', transform: 'rotate(45deg)' }}>{BgIcon}</div>
+                            </div>
+                        );
 
-                                if (tag === 'Prime') {
-                                    className = "bg-sky-900/30 text-sky-200 border-sky-500/30";
-                                    iconColorClass = "text-sky-400";
-                                } else if (tag.toLowerCase().includes('solstice')) {
-                                    className = "bg-yellow-900/30 text-yellow-200 border-yellow-500/30";
-                                    iconColorClass = "text-yellow-400";
-                                } else if (tag.toLowerCase().includes('equinox')) {
-                                    className = "bg-indigo-900/30 text-indigo-200 border-indigo-500/30";
-                                    iconColorClass = "text-indigo-400";
-                                } else if (tag.toLowerCase().includes('meteor')) {
-                                    className = "bg-purple-900/30 text-purple-200 border-purple-500/30";
-                                    iconColorClass = "text-purple-400";
-                                } else if (tag.toLowerCase().includes('first day')) {
-                                    className = "bg-emerald-900/30 text-emerald-200 border-emerald-500/30";
-                                    iconColorClass = "text-emerald-400";
-                                } else if (tag === 'Sequence') {
-                                    className = "bg-pink-900/30 text-pink-200 border-pink-500/30";
-                                    iconColorClass = "text-pink-400";
-                                } else if (tag === 'Milestone') {
-                                    className = "bg-blue-900/30 text-blue-200 border-blue-500/30";
-                                    iconColorClass = "text-blue-400";
-                                } else if (tag === 'Today') {
-                                    className = "bg-orange-900/30 text-orange-200 border-orange-500/30";
-                                    iconColorClass = "text-orange-400";
-                                } else if (tag.toLowerCase().includes('eclipse')) {
-                                    className = "bg-red-900/30 text-red-200 border-red-500/30";
-                                    iconColorClass = "text-red-400";
-                                }
+                        if (seed > 0.7) {
+                            // Large Center
+                            pattern = (
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.04, zIndex: 0, pointerEvents: 'none' }}>
+                                    <div style={{ width: '90%', height: '90%', transform: 'rotate(3deg)' }}>{BgIcon}</div>
+                                </div>
+                            );
+                        } else if (seed > 0.4) {
+                            // Tiled (Simplified as grid)
+                            pattern = (
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.02, zIndex: 0, pointerEvents: 'none', display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', padding: '1rem', gap: '1rem' }}>
+                                    <div style={{ transform: 'rotate(3deg)' }}>{BgIcon}</div>
+                                    <div style={{ transform: 'rotate(-6deg)' }}>{BgIcon}</div>
+                                    <div style={{ transform: 'rotate(-3deg)' }}>{BgIcon}</div>
+                                    <div style={{ transform: 'rotate(6deg)' }}>{BgIcon}</div>
+                                </div>
+                            );
+                        }
+                        return pattern;
+                    })()}
 
-                                let iconElement;
-                                if (tag.includes('First day')) {
-                                    const seasonMatch = tag.split(' ').pop();
-                                    iconElement = (
-                                        <div className={`w-5 h-5 ${iconColorClass} [&>svg]:w-full [&>svg]:h-full`}>
-                                            {getIconForTag(seasonMatch || season, "w-full h-full", 2)}
-                                        </div>
-                                    );
-                                } else {
-                                    iconElement = getIconForTag(tag, `w-5 h-5 ${iconColorClass}`, 2);
-                                }
+                    <div className={`back-content flex flex-col items-center h-full pt-10 pb-5 ${shareOnlyMode ? 'justify-center' : 'justify-between'}`} style={{ position: 'relative', zIndex: 10 }}>
 
-                                return (
-                                    <span key={i} className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border whitespace-nowrap ${className}`}>
-                                        {iconElement}
-                                        {tag}
+                        {!shareOnlyMode && (
+                            <>
+                                {/* Header: Date Only */}
+                                <div className="text-xl font-bold text-slate-200 mb-6 font-mono text-center drop-shadow-md">
+                                    <span className="desktop-hidden">
+                                        {fullDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                                     </span>
-                                );
-                            })}
-                        </div>
+                                    <span className="desktop-only">
+                                        {fullDate.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                                    </span>
+                                </div>
+
+                                {/* Tags (Pills) */}
+                                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginBottom: '16px', width: '100%', paddingLeft: '16px', paddingRight: '16px' }}>
+                                    {tags.map((tag, i) => {
+                                        const lowerTag = tag.toLowerCase();
+                                        let bg = 'rgba(30, 41, 59, 0.8)'; // Slate-800
+                                        let border = 'rgba(51, 65, 85, 0.5)'; // Slate-700
+                                        let color = '#cbd5e1'; // Slate-300
+                                        let customStroke: string | undefined = undefined;
+
+                                        if (tag === 'Prime') {
+                                            bg = 'rgba(12, 74, 110, 0.3)'; border = 'rgba(14, 165, 233, 0.3)'; color = '#bae6fd'; // Sky
+                                        } else if (lowerTag.includes('solstice')) {
+                                            if (lowerTag.includes('winter')) { bg = 'rgba(49, 46, 129, 0.3)'; border = 'rgba(99, 102, 241, 0.3)'; color = '#c7d2fe'; } // Indigo
+                                            else { bg = 'rgba(127, 29, 29, 0.3)'; border = 'rgba(239, 68, 68, 0.3)'; color = '#fecaca'; } // Red
+                                        } else if (lowerTag.includes('equinox')) {
+                                            if (lowerTag.includes('spring') || lowerTag.includes('vernal')) { bg = 'rgba(6, 78, 59, 0.3)'; border = 'rgba(16, 185, 129, 0.3)'; color = '#a7f3d0'; } // Emerald
+                                            else { bg = 'rgba(124, 45, 18, 0.3)'; border = 'rgba(249, 115, 22, 0.3)'; color = '#fed7aa'; } // Orange
+                                        } else if (lowerTag.includes('first day')) {
+                                            if (lowerTag.includes('spring')) { bg = 'rgba(6, 78, 59, 0.3)'; border = 'rgba(16, 185, 129, 0.3)'; color = '#a7f3d0'; customStroke = "url(#spring-transition)"; }
+                                            else if (lowerTag.includes('summer')) { bg = 'rgba(127, 29, 29, 0.3)'; border = 'rgba(239, 68, 68, 0.3)'; color = '#fecaca'; customStroke = "url(#summer-transition)"; }
+                                            else if (lowerTag.includes('autumn')) { bg = 'rgba(124, 45, 18, 0.3)'; border = 'rgba(249, 115, 22, 0.3)'; color = '#fed7aa'; customStroke = "url(#autumn-transition)"; }
+                                            else if (lowerTag.includes('winter')) { bg = 'rgba(49, 46, 129, 0.3)'; border = 'rgba(99, 102, 241, 0.3)'; color = '#c7d2fe'; customStroke = "url(#winter-transition)"; }
+                                        } else if (lowerTag.includes('meteor')) {
+                                            bg = 'rgba(88, 28, 135, 0.3)'; border = 'rgba(168, 85, 247, 0.3)'; color = '#e9d5ff'; // Purple
+                                        } else if (tag === 'Sequence') {
+                                            bg = 'rgba(131, 24, 67, 0.3)'; border = 'rgba(236, 72, 153, 0.3)'; color = '#fbcfe8'; // Pink
+                                        } else if (lowerTag.includes('eclipse')) {
+                                            bg = 'rgba(127, 29, 29, 0.3)'; border = 'rgba(239, 68, 68, 0.3)'; color = '#fecaca'; // Red
+                                        } else if (tag === 'Milestone') {
+                                            bg = 'rgba(30, 58, 138, 0.3)'; border = 'rgba(59, 130, 246, 0.3)'; color = '#bfdbfe'; // Blue
+                                        } else if (tag === 'Today') {
+                                            bg = 'rgba(124, 45, 18, 0.3)'; border = 'rgba(249, 115, 22, 0.3)'; color = '#fed7aa'; // Orange
+                                        }
+
+                                        let iconElement;
+                                        if (tag.includes('First day')) {
+                                            const seasonMatch = tag.split(' ').pop();
+                                            iconElement = getIconForTag(seasonMatch || season, "w-full h-full", 2, customStroke);
+                                        } else {
+                                            iconElement = getIconForTag(tag, "w-full h-full", 2, customStroke);
+                                        }
+
+                                        return (
+                                            <span key={i} style={{
+                                                display: 'inline-flex', alignItems: 'center', gap: '12px',
+                                                padding: '6px 16px', borderRadius: '9999px',
+                                                fontSize: '0.875rem', fontWeight: 500,
+                                                whiteSpace: 'nowrap',
+                                                backgroundColor: bg, border: `1px solid ${border}`, color: color
+                                            }}>
+                                                <div style={{ width: '20px', height: '20px', color: 'inherit' }}>
+                                                    {iconElement}
+                                                </div>
+                                                {tag}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        )}
 
                         {/* Share Section (Social Links) */}
                         <div className="flex flex-col items-center w-full gap-3 px-4">

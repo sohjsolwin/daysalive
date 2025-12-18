@@ -1535,3 +1535,35 @@ video {
   color: var(--accent-secondary);
   text-decoration-thickness: 2px;
 }
+
+/* Responsive Main Icon Size */
+.front-main-icon {
+  width: 4rem;
+  height: 4rem;
+}
+
+@media (min-width: 768px) {
+  .front-main-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+/* Desktop Helpers */
+.desktop-only {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .desktop-hidden {
+    display: none !important;
+  }
+
+  .desktop-row {
+    flex-direction: row !important;
+  }
+
+  .desktop-only {
+    display: block !important;
+  }
+}
